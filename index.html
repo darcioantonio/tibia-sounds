@@ -7,55 +7,105 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
-* { margin: 0; padding: 0; box-sizing: border-box; }
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg: #0f0b07;
-  --bg2: #1a130c;
-  --bg3: #241b12;
-  --border: #3a2a18;
-  --border-hover: #8a6b2a;
-  --gold: #f0b90b;
-  --gold-light: #ffd700;
-  --gold-dim: #b8963a;
-  --text: #f0e6d2;
-  --text-dim: #8a7a5a;
-  --text-muted: #6a5a3a;
+  --bg: #f4f2ee;
+  --bg2: #ffffff;
+  --bg3: #eae8e3;
+  --border: #d4d0c8;
+  --border-hover: #a09888;
+  --accent: #6366f1;
+  --accent-light: #818cf8;
+  --accent-bg: rgba(99,102,241,0.08);
+  --text: #1a1a2e;
+  --text-dim: #6b6580;
+  --text-muted: #9a94a8;
+  --shadow: rgba(0,0,0,0.06);
+  --shadow-hover: rgba(0,0,0,0.1);
+  --radius: 14px;
+  --playing: #6366f1;
 }
 
+[data-theme="dark"] {
+  --bg: #0c0a14;
+  --bg2: #151220;
+  --bg3: #1e1a2e;
+  --border: #2a2640;
+  --border-hover: #4a4580;
+  --accent: #818cf8;
+  --accent-light: #a5b4fc;
+  --accent-bg: rgba(129,140,248,0.1);
+  --text: #e8e4f0;
+  --text-dim: #9892b0;
+  --text-muted: #6a6580;
+  --shadow: rgba(0,0,0,0.3);
+  --shadow-hover: rgba(0,0,0,0.5);
+  --playing: #818cf8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
-  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-family: 'Outfit', 'Segoe UI', Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
 }
 
 /* HEADER */
 header {
-  background: linear-gradient(180deg, #1a110a 0%, #0f0b07 100%);
-  padding: 24px 16px 16px;
+  background: var(--bg2);
+  padding: 20px 16px 14px;
   text-align: center;
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(12px);
+}
+header .top-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 header h1 {
-  font-size: 1.5em;
-  color: var(--gold-light);
-  margin-bottom: 2px;
-  letter-spacing: 4px;
-  font-family: 'Cinzel', serif;
+  font-size: 1.3em;
+  color: var(--text);
   font-weight: 700;
+  letter-spacing: -0.5px;
 }
-header h1 small { font-size: 0.4em; color: var(--gold-dim); letter-spacing: 2px; font-family: 'Inter', sans-serif; font-weight: 400; }
-header p { color: var(--gold-dim); font-size: 0.75em; margin-bottom: 12px; }
+header h1 span { color: var(--accent); }
+header p { color: var(--text-dim); font-size: 0.75em; }
+
+/* THEME TOGGLE */
+.theme-toggle {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px;
+  display: flex;
+  cursor: pointer;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+.theme-toggle span {
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.75em;
+  color: var(--text-dim);
+  transition: all 0.25s;
+}
+.theme-toggle span.active {
+  background: var(--accent);
+  color: #fff;
+}
 
 /* SEARCH */
 .search-bar {
-  max-width: 700px;
+  max-width: 640px;
   margin: 0 auto;
   display: flex;
   gap: 6px;
@@ -64,35 +114,35 @@ header p { color: var(--gold-dim); font-size: 0.75em; margin-bottom: 12px; }
 }
 .search-bar input {
   flex: 1;
-  min-width: 160px;
+  min-width: 150px;
   padding: 10px 16px;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg2);
+  border-radius: var(--radius);
+  background: var(--bg3);
   color: var(--text);
   font-size: 0.85em;
   outline: none;
   transition: all 0.3s;
 }
-.search-bar input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(240,185,11,0.1); }
+.search-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
 .search-bar input::placeholder { color: var(--text-muted); }
 .search-bar select {
   padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg2);
+  border-radius: var(--radius);
+  background: var(--bg3);
   color: var(--text);
   font-size: 0.8em;
   outline: none;
   cursor: pointer;
+  transition: border-color 0.3s;
 }
-.search-bar select:focus { border-color: var(--gold); }
+.search-bar select:focus { border-color: var(--accent); }
 
 .stats {
   margin-top: 8px;
   font-size: 0.7em;
   color: var(--text-muted);
-  letter-spacing: 0.5px;
 }
 
 /* MAIN */
@@ -117,47 +167,41 @@ main {
 .sound-btn {
   background: var(--bg2);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 10px 12px;
+  border-radius: var(--radius);
+  padding: 16px 10px 12px;
   color: var(--text);
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   text-align: center;
   position: relative;
   user-select: none;
+  box-shadow: 0 1px 3px var(--shadow);
 }
 .sound-btn:hover {
   border-color: var(--border-hover);
-  background: var(--bg3);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-}
-.sound-btn:active {
-  transform: translateY(0);
-  transition: all 0.05s;
+  box-shadow: 0 4px 16px var(--shadow-hover);
+  transform: translateY(-1px);
 }
 .sound-btn.playing {
-  border-color: var(--gold);
-  background: linear-gradient(180deg, #241b0a 0%, #1a1308 100%);
-  box-shadow: 0 0 20px rgba(240,185,11,0.1);
+  border-color: var(--playing);
+  box-shadow: 0 0 0 2px var(--accent-bg);
+  background: var(--accent-bg);
 }
 .sound-btn .id {
   color: var(--text-dim);
-  font-size: 0.7em;
+  font-size: 0.65em;
   display: block;
   margin-bottom: 6px;
-  font-family: 'Inter', monospace;
   font-weight: 600;
-  letter-spacing: 1px;
-  transition: color 0.25s;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
 }
-.sound-btn.playing .id { color: var(--gold); }
-.sound-btn:hover .id { color: var(--text); }
+.sound-btn.playing .id { color: var(--accent); }
 .sound-btn .label {
-  font-size: 0.9em;
+  font-size: 0.85em;
   line-height: 1.4;
   display: block;
-  min-height: 2.6em;
+  min-height: 2.4em;
   word-break: break-word;
   padding: 2px 4px;
   color: var(--text);
@@ -174,11 +218,9 @@ main {
   color: var(--text-muted);
   display: block;
   margin-top: 6px;
-  transition: color 0.25s;
 }
-.sound-btn.playing .size { color: var(--gold-dim); }
 
-/* TOP ACTIONS (edit/download) */
+/* TOP ACTIONS */
 .sound-btn .top-actions {
   position: absolute;
   top: 4px;
@@ -186,32 +228,31 @@ main {
   display: flex;
   gap: 2px;
   opacity: 0;
-  transition: opacity 0.25s;
+  transition: opacity 0.2s;
 }
 .sound-btn:hover .top-actions { opacity: 1; }
 .sound-btn .top-actions button {
-  background: rgba(15,11,7,0.8);
+  background: var(--bg3);
   border: none;
   color: var(--text-dim);
   cursor: pointer;
-  font-size: 0.75em;
+  font-size: 0.7em;
   padding: 4px 6px;
   border-radius: 6px;
   transition: all 0.2s;
-  backdrop-filter: blur(4px);
 }
-.sound-btn .top-actions button:hover { background: rgba(240,185,11,0.15); }
-.sound-btn .top-actions .fa-pen { color: #60a5fa; }
-.sound-btn .top-actions .fa-download { color: #4ade80; }
-.sound-btn .top-actions button:hover .fa-pen { color: #93c5fd; }
-.sound-btn .top-actions button:hover .fa-download { color: #86efac; }
+.sound-btn .top-actions button:hover { background: var(--accent-bg); }
+.sound-btn .top-actions .fa-pen { color: #6366f1; }
+.sound-btn .top-actions .fa-download { color: #10b981; }
+.sound-btn .top-actions button:hover .fa-pen { color: #818cf8; }
+.sound-btn .top-actions button:hover .fa-download { color: #34d399; }
 
 /* NO RESULTS */
 .no-results {
   text-align: center;
   padding: 60px 40px;
   color: var(--text-muted);
-  font-size: 1em;
+  font-size: 0.95em;
   grid-column: 1 / -1;
 }
 .no-results i { font-size: 2em; display: block; margin-bottom: 12px; color: var(--border); }
@@ -219,7 +260,7 @@ main {
 /* FOOTER */
 footer {
   text-align: center;
-  padding: 12px 20px;
+  padding: 10px 20px;
   color: var(--text-muted);
   font-size: 0.7em;
   border-top: 1px solid var(--border);
@@ -227,11 +268,12 @@ footer {
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--bg);
+  background: var(--bg2);
   z-index: 99;
+  transition: background 0.3s;
 }
-footer a { color: var(--gold-dim); text-decoration: none; font-weight: 600; transition: color 0.2s; }
-footer a:hover { color: var(--gold-light); }
+footer a { color: var(--accent); text-decoration: none; font-weight: 600; transition: color 0.2s; }
+footer a:hover { color: var(--accent-light); }
 
 /* BACK TO TOP */
 .back-top {
@@ -241,9 +283,9 @@ footer a:hover { color: var(--gold-light); }
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--bg3);
+  background: var(--bg2);
   border: 1px solid var(--border);
-  color: var(--gold-dim);
+  color: var(--text-dim);
   font-size: 1em;
   cursor: pointer;
   transition: all 0.3s;
@@ -254,6 +296,7 @@ footer a:hover { color: var(--gold-light); }
   visibility: hidden;
   transform: translateY(10px);
   z-index: 99;
+  box-shadow: 0 2px 8px var(--shadow);
 }
 .back-top.show {
   opacity: 1;
@@ -261,29 +304,31 @@ footer a:hover { color: var(--gold-light); }
   transform: translateY(0);
 }
 .back-top:hover {
-  border-color: var(--gold);
-  color: var(--gold-light);
-  box-shadow: 0 0 20px rgba(240,185,11,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 4px 16px var(--shadow-hover);
 }
 </style>
 </head>
 <body>
 <header>
-  <h1>TIBIA <small>SOUNDBOARD</small></h1>
-  <p>815 sons - clique para ouvir, lapis para renomear</p>
+  <div class="top-row">
+    <h1>Tibia <span>Soundboard</span></h1>
+    <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Alternar tema">
+      <span class="active" data-theme-val="light"><i class="fas fa-sun"></i></span>
+      <span data-theme-val="dark"><i class="fas fa-moon"></i></span>
+    </div>
+  </div>
+  <p>815 sons &middot; clique para ouvir &middot; lapis para renomear</p>
   <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Buscar por ID (#1), nome customizado ou hash..." oninput="filterSounds()">
+    <input type="text" id="searchInput" placeholder="Buscar por ID (#1), nome ou hash..." oninput="filterSounds()">
     <select id="sortSelect" onchange="filterSounds()">
       <option value="id">Ordem original</option>
       <option value="name">Ordem alfabetica</option>
       <option value="size">Por tamanho</option>
     </select>
-
   </div>
   <div class="stats" id="stats"></div>
-  <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
-
-  </div>
 </header>
 <main>
   <div class="sound-grid" id="soundGrid"></div>
@@ -1293,6 +1338,24 @@ function filterSounds() {
 
   document.getElementById('stats').textContent = filtered.length + ' de ' + sounds.length + ' sons';
 }
+
+function toggleTheme() {
+  var html = document.documentElement;
+  var current = html.getAttribute('data-theme') || 'light';
+  var next = current === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  document.querySelectorAll('#themeToggle span').forEach(function(s) {
+    s.classList.toggle('active', s.getAttribute('data-theme-val') === next);
+  });
+}
+(function() {
+  var saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.querySelectorAll('#themeToggle span').forEach(function(s) {
+    s.classList.toggle('active', s.getAttribute('data-theme-val') === saved);
+  });
+})();
 
 window.addEventListener('scroll', function() {
   document.getElementById('backTop').classList.toggle('show', window.scrollY > 300);
