@@ -520,16 +520,14 @@ footer a:hover { color: var(--accent-light); }
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo"><i class="fas fa-chevron-up"></i></button>
 
 <!-- MODAL -->
-<div class="modal-overlay" id="imageModal" onclick="if(event.target===this)closeImageModal()">
+<div class="modal-overlay" id="mainModal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
-    <h3>Adicionar Imagem</h3>
-    <p>1. Va no <strong>Tibia Wiki</strong> e ache a imagem<br>
-    2. Clique com botao direito > Copiar endereco da imagem<br>
-    3. Cole no campo abaixo e clique em Salvar</p>
-    <input type="url" id="imageInput" placeholder="https://www.tibiawiki.com.br/images/..." autocomplete="off">
-    <div class="modal-actions">
-      <button class="btn-link" onclick="window.open('https://www.tibiawiki.com.br','_blank')"><i class="fas fa-external-link-alt"></i> Ir para Tibia Wiki</button>
-      <button class="btn-primary" onclick="saveImage()"><i class="fas fa-check"></i> Salvar</button>
+    <h3 id="modalTitle">Adicionar Imagem</h3>
+    <p id="modalDesc">Instrucoes aqui</p>
+    <input type="text" id="modalInput" placeholder="..." autocomplete="off">
+    <div class="modal-actions" id="modalActions">
+      <button class="btn-link" id="modalBtnExtra" style="display:none"><i class="fas fa-external-link-alt"></i> Ir</button>
+      <button class="btn-primary" onclick="saveModal()"><i class="fas fa-check"></i> Salvar</button>
     </div>
   </div>
 </div>
@@ -1543,49 +1541,63 @@ function downloadSound(sound, event) {
 
 function editName(soundId, event) {
   event.stopPropagation();
-  if (!currentUser) {
-    handleAuth();
-    return;
-  }
-  var current = customNames[soundId] || '';
-  var newName = prompt('Nome para o som #' + soundId + ':', current);
-  if (newName === null) return;
-  newName = newName.trim();
-  if (newName === '') {
-    delete customNames[soundId];
-    delete customNames[soundId + '_by'];
-  } else {
-    customNames[soundId] = newName;
-    customNames[soundId + '_by'] = currentUser.user_metadata?.full_name || currentUser.email || 'Alguem';
-  }
-  saveNames();
-  filterSounds();
+  if (!currentUser) { handleAuth(); return; }
+  window._modalSoundId = soundId;
+  window._modalMode = 'name';
+  document.getElementById('modalTitle').textContent = 'Renomear Som #' + soundId;
+  document.getElementById('modalDesc').textContent = 'Digite o nome que você quer dar para este som:';
+  document.getElementById('modalInput').value = customNames[soundId] || '';
+  document.getElementById('modalInput').placeholder = 'Ex: Dragon, Fire Wave, ...';
+  document.getElementById('modalBtnExtra').style.display = 'none';
+  openModal();
 }
 
 function setImage(soundId, event) {
   event.stopPropagation();
   if (!currentUser) { handleAuth(); return; }
-  document.getElementById('imageModal').classList.add('open');
-  document.getElementById('imageInput').value = customImages[soundId] || '';
-  document.getElementById('imageInput').focus();
-  window._imgSoundId = soundId;
+  window._modalSoundId = soundId;
+  window._modalMode = 'image';
+  document.getElementById('modalTitle').textContent = 'Adicionar Imagem';
+  document.getElementById('modalDesc').innerHTML = '1. Va no <strong>Tibia Wiki</strong> e ache a imagem<br>2. Clique com botao direito > Copiar endereco da imagem<br>3. Cole abaixo e clique em Salvar';
+  document.getElementById('modalInput').value = customImages[soundId] || '';
+  document.getElementById('modalInput').placeholder = 'https://www.tibiawiki.com.br/images/...';
+  var extra = document.getElementById('modalBtnExtra');
+  extra.style.display = '';
+  extra.onclick = function() { window.open('https://www.tibiawiki.com.br','_blank'); };
+  extra.innerHTML = '<i class="fas fa-external-link-alt"></i> Ir para Tibia Wiki';
+  openModal();
 }
 
-function closeImageModal() {
-  document.getElementById('imageModal').classList.remove('open');
+function openModal() {
+  document.getElementById('mainModal').classList.add('open');
+  document.getElementById('modalInput').focus();
 }
 
-function saveImage() {
-  var soundId = window._imgSoundId;
-  var url = document.getElementById('imageInput').value.trim();
-  if (url === '') {
-    delete customImages[soundId];
-    delete customImages[soundId + '_by'];
-  } else {
-    customImages[soundId] = url;
-    customImages[soundId + '_by'] = currentUser.user_metadata?.full_name || currentUser.email || 'Alguem';
+function closeModal() {
+  document.getElementById('mainModal').classList.remove('open');
+}
+
+function saveModal() {
+  var soundId = window._modalSoundId;
+  var val = document.getElementById('modalInput').value.trim();
+  if (window._modalMode === 'name') {
+    if (val === '') {
+      delete customNames[soundId];
+      delete customNames[soundId + '_by'];
+    } else {
+      customNames[soundId] = val;
+      customNames[soundId + '_by'] = currentUser.user_metadata?.full_name || currentUser.email || 'Alguem';
+    }
+  } else if (window._modalMode === 'image') {
+    if (val === '') {
+      delete customImages[soundId];
+      delete customImages[soundId + '_by'];
+    } else {
+      customImages[soundId] = val;
+      customImages[soundId + '_by'] = currentUser.user_metadata?.full_name || currentUser.email || 'Alguem';
+    }
   }
-  closeImageModal();
+  closeModal();
   saveNames();
   filterSounds();
 }
@@ -1681,7 +1693,7 @@ window.addEventListener('scroll', function() {
   document.getElementById('backTop').classList.toggle('show', window.scrollY > 300);
 });
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeImageModal();
+  if (e.key === 'Escape') closeModal();
 });
 if (sbConnected) loadFromSupabase();
 filterSounds();
