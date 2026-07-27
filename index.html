@@ -194,7 +194,7 @@ main {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 16px 10px 12px;
+  padding: 32px 10px 12px;
   color: var(--text);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -224,14 +224,14 @@ main {
 }
 .sound-btn.playing .id { color: var(--accent); }
 .sound-btn .label {
-  font-size: 0.85em;
+  font-size: 1em;
   line-height: 1.4;
   display: block;
   min-height: 2.4em;
   word-break: break-word;
   padding: 2px 4px;
   color: var(--text);
-  font-weight: 500;
+  font-weight: 600;
 }
 .sound-btn .label.empty {
   color: var(--text-muted);
@@ -247,31 +247,29 @@ main {
 }
 .sound-btn .editor {
   display: block;
-  font-size: 0.55em;
-  color: var(--accent);
+  font-size: 0.6em;
+  color: #fff;
   margin-top: 2px;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 /* TOP ACTIONS */
 .sound-btn .top-actions {
   position: absolute;
   top: 4px;
+  left: 6px;
   right: 6px;
   display: flex;
-  gap: 2px;
-  opacity: 0;
-  transition: opacity 0.2s;
+  justify-content: space-between;
 }
-.sound-btn:hover .top-actions { opacity: 1; }
 .sound-btn .top-actions button {
   background: var(--bg3);
-  border: none;
+  border: 1px solid var(--border);
   color: var(--text-dim);
   cursor: pointer;
-  font-size: 0.7em;
-  padding: 4px 6px;
-  border-radius: 6px;
+  font-size: 0.85em;
+  padding: 6px 10px;
+  border-radius: 8px;
   transition: all 0.2s;
 }
 .sound-btn .top-actions button:hover { background: var(--accent-bg); }
