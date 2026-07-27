@@ -243,14 +243,30 @@ main {
 }
 .sound-btn .card-img-empty {
   background: var(--bg3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
 }
 .sound-btn .card-img-empty::after {
-  content: '\f03e';
+  content: 'ADD\A imagem';
+  white-space: pre;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.55em;
+  font-weight: 600;
+  color: var(--text-muted);
+  opacity: 0.6;
+  text-align: center;
+  line-height: 1.2;
+}
+.sound-btn .card-img-empty::before {
+  content: '\f067';
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
-  font-size: 1.5em;
+  font-size: 1em;
   color: var(--text-muted);
-  opacity: 0.4;
+  opacity: 0.5;
 }
 .sound-btn .card-img img {
   width: 100%;
