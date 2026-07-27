@@ -227,6 +227,19 @@ main {
   justify-content: center;
   overflow: hidden;
   border-radius: 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+}
+.sound-btn .card-img-empty {
+  background: var(--bg3);
+}
+.sound-btn .card-img-empty::after {
+  content: '\f03e';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 1.2em;
+  color: var(--text-muted);
+  opacity: 0.4;
 }
 .sound-btn .card-img img {
   width: 100%;
@@ -1594,7 +1607,11 @@ function filterSounds() {
     var editor = customNames[s.id + '_by'] || '';
     var editorHtml = editor ? '<span class="editor">por ' + editor + '</span>' : '';
     var imgUrl = customImages[s.id] || '';
-    var imgHtml = imgUrl ? '<div class="card-img"><img src="' + imgUrl + '" alt="" loading="lazy" onerror="this.parentElement.remove()"></div>' : '';
+    var imgHtml = '<div class="card-img' + (imgUrl ? '' : ' card-img-empty') + '">';
+    if (imgUrl) {
+      imgHtml += '<img src="' + imgUrl + '" alt="" loading="lazy" onerror="this.parentElement.className=\'card-img card-img-empty\'">';
+    }
+    imgHtml += '</div>';
     return '<div class="sound-btn" onclick="playSound(sounds[' + (s.id - 1) + '], this)" title="Som #' + s.id + '\nHash: ' + h + '\nTamanho: ' + formatSize(s.size) + (label ? '\nNome: ' + label : '') + '">' +
       '<div class="top-actions">' +
       '<button onclick="editName(' + s.id + ', event)" title="Renomear"><i class="fas fa-pen"></i></button>' +
