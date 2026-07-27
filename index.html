@@ -218,6 +218,13 @@ main {
   gap: 10px;
   align-items: center;
 }
+.sound-btn .card-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
 .sound-btn .card-img {
   flex-shrink: 0;
   width: 64px;
@@ -229,6 +236,10 @@ main {
   border-radius: 10px;
   background: var(--bg3);
   border: 1px solid var(--border);
+  cursor: pointer;
+}
+.sound-btn .card-img:hover {
+  border-color: var(--accent);
 }
 .sound-btn .card-img-empty {
   background: var(--bg3);
@@ -245,6 +256,15 @@ main {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.sound-btn .img-editor {
+  font-size: 0.5em;
+  color: #fff;
+  opacity: 0.6;
+  white-space: nowrap;
+  max-width: 64px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .sound-btn .card-info {
   flex: 1;
@@ -312,10 +332,8 @@ main {
 }
 .sound-btn .top-actions button:hover { background: var(--accent-bg); }
 .sound-btn .top-actions .fa-pen { color: #6366f1; }
-.sound-btn .top-actions .fa-image { color: #f59e0b; }
 .sound-btn .top-actions .fa-download { color: #10b981; }
 .sound-btn .top-actions button:hover .fa-pen { color: #818cf8; }
-.sound-btn .top-actions button:hover .fa-image { color: #fbbf24; }
 .sound-btn .top-actions button:hover .fa-download { color: #34d399; }
 
 /* NO RESULTS */
@@ -1420,14 +1438,15 @@ function syncToSupabase() {
     for (var id in customNames) {
       if (id.toString().indexOf('_by') !== -1) continue;
       var img = customImages[id] || null;
-      payload.push({ sound_id: parseInt(id), name: customNames[id], updated_by: userName, image_url: img });
+      var imgBy = customImages[id + '_by'] || null;
+      payload.push({ sound_id: parseInt(id), name: customNames[id], updated_by: userName, image_url: img, image_updated_by: imgBy });
     }
     if (payload.length === 0 || !sb) return;
     sb.from('sound_names').upsert(payload, { onConflict: 'sound_id' }).then(function(resp) {
       if (resp.error) {
         console.error('Supabase sync error:', resp.error.message);
         if (resp.error.message && resp.error.message.indexOf('relation') !== -1) {
-          alert('ERRO: Tabela "sound_names" nao existe no Supabase!\n\nVá em: https://supabase.com/dashboard/project/nisiwytknqyrstjsfxah/sql/new\nE cole o SQL:\n\nCREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "ler anon" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "editar logado" ON sound_names FOR INSERT WITH CHECK (auth.role() = \'authenticated\');\nCREATE POLICY "editar logado" ON sound_names FOR UPDATE USING (auth.role() = \'authenticated\');\nCREATE POLICY "editar logado" ON sound_names FOR DELETE USING (auth.role() = \'authenticated\');');
+          alert('ERRO: Tabela "sound_names" nao existe no Supabase!\n\nVá em: https://supabase.com/dashboard/project/nisiwytknqyrstjsfxah/sql/new\nE cole o SQL:\n\nCREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL, updated_by TEXT, image_url TEXT, image_updated_by TEXT);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "ler anon" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "inserir logado" ON sound_names FOR INSERT WITH CHECK (auth.role() = \'authenticated\');\nCREATE POLICY "atualizar logado" ON sound_names FOR UPDATE USING (auth.role() = \'authenticated\');\nCREATE POLICY "deletar logado" ON sound_names FOR DELETE USING (auth.role() = \'authenticated\');');
         }
       }
     });
@@ -1436,10 +1455,10 @@ function syncToSupabase() {
 
 async function loadFromSupabase() {
   if (!sbConnected || !sb) return;
-  var resp = await sb.from('sound_names').select('sound_id,name,updated_by,image_url');
+  var resp = await sb.from('sound_names').select('sound_id,name,updated_by,image_url,image_updated_by');
   if (resp.error) {
       if (resp.error.message && resp.error.message.indexOf('relation') !== -1) {
-        var sql = 'CREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "ler anon" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "editar logado" ON sound_names FOR INSERT WITH CHECK (auth.role() = \'authenticated\');\nCREATE POLICY "editar logado" ON sound_names FOR UPDATE USING (auth.role() = \'authenticated\');\nCREATE POLICY "editar logado" ON sound_names FOR DELETE USING (auth.role() = \'authenticated\');';
+        var sql = 'CREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL, updated_by TEXT, image_url TEXT, image_updated_by TEXT);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "ler anon" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "inserir logado" ON sound_names FOR INSERT WITH CHECK (auth.role() = \'authenticated\');\nCREATE POLICY "atualizar logado" ON sound_names FOR UPDATE USING (auth.role() = \'authenticated\');\nCREATE POLICY "deletar logado" ON sound_names FOR DELETE USING (auth.role() = \'authenticated\');';
         console.warn('SQL para criar tabela:\n' + sql);
         alert('Banco de dados nao configurado!\n\nClique em OK e veja o video:\nhttps://youtu.be/FcE1DlPNJqI\n\nOu cole no SQL Editor do Supabase:\n' + sql);
       }
@@ -1451,7 +1470,10 @@ async function loadFromSupabase() {
         customNames[row.sound_id] = row.name;
         if (row.updated_by) customNames[row.sound_id + '_by'] = row.updated_by;
       }
-      if (row.image_url) customImages[row.sound_id] = row.image_url;
+      if (row.image_url) {
+        customImages[row.sound_id] = row.image_url;
+        if (row.image_updated_by) customImages[row.sound_id + '_by'] = row.image_updated_by;
+      }
     });
     try { localStorage.setItem('tibiaSoundNames', JSON.stringify(customNames)); } catch(e) {}
     try { localStorage.setItem('tibiaSoundImages', JSON.stringify(customImages)); } catch(e) {}
@@ -1558,8 +1580,10 @@ function saveImage() {
   var url = document.getElementById('imageInput').value.trim();
   if (url === '') {
     delete customImages[soundId];
+    delete customImages[soundId + '_by'];
   } else {
     customImages[soundId] = url;
+    customImages[soundId + '_by'] = currentUser.user_metadata?.full_name || currentUser.email || 'Alguem';
   }
   closeImageModal();
   saveNames();
@@ -1607,19 +1631,23 @@ function filterSounds() {
     var editor = customNames[s.id + '_by'] || '';
     var editorHtml = editor ? '<span class="editor">por ' + editor + '</span>' : '';
     var imgUrl = customImages[s.id] || '';
-    var imgHtml = '<div class="card-img' + (imgUrl ? '' : ' card-img-empty') + '">';
+    var imgEditor = customImages[s.id + '_by'] || '';
+    var imgHtml = '<div class="card-img' + (imgUrl ? '' : ' card-img-empty') + '" onclick="setImage(' + s.id + ', event)">';
     if (imgUrl) {
       imgHtml += '<img src="' + imgUrl + '" alt="" loading="lazy" onerror="this.parentElement.className=\'card-img card-img-empty\'">';
     }
     imgHtml += '</div>';
+    var imgEditorHtml = imgEditor ? '<span class="img-editor">por ' + imgEditor + '</span>' : '';
     return '<div class="sound-btn" onclick="playSound(sounds[' + (s.id - 1) + '], this)" title="Som #' + s.id + '\nHash: ' + h + '\nTamanho: ' + formatSize(s.size) + (label ? '\nNome: ' + label : '') + '">' +
       '<div class="top-actions">' +
       '<button onclick="editName(' + s.id + ', event)" title="Renomear"><i class="fas fa-pen"></i></button>' +
-      '<button onclick="setImage(' + s.id + ', event)" title="Adicionar imagem"><i class="fas fa-image"></i></button>' +
       '<button onclick="downloadSound(sounds[' + (s.id - 1) + '], event)" title="Download"><i class="fas fa-download"></i></button>' +
       '</div>' +
       '<div class="card-body">' +
+      '<div class="card-left">' +
       imgHtml +
+      imgEditorHtml +
+      '</div>' +
       '<div class="card-info">' +
       '<span class="id">#' + s.id + '</span>' +
       '<span class="label ' + labelClass + '">' + displayLabel + '</span>' +
