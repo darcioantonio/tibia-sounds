@@ -255,11 +255,7 @@ footer a:hover { color: #ffd700; text-decoration: underline; }
   </div>
   <div class="stats" id="stats"></div>
   <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
-    <button class="btn-group" style="padding:5px 10px;border:1px solid #5a4520;border-radius:6px;background:#181008;color:#81c784;cursor:pointer;font-size:0.7em;" onclick="exportNames()"><i class="fas fa-file-export"></i> Exportar nomes</button>
-    <button class="btn-group" style="padding:5px 10px;border:1px solid #5a4520;border-radius:6px;background:#181008;color:#4fc3f7;cursor:pointer;font-size:0.7em;" onclick="document.getElementById('importInput').click()"><i class="fas fa-file-import"></i> Importar nomes</button>
-    <button class="btn-group" style="padding:5px 10px;border:1px solid #5a4520;border-radius:6px;background:#181008;color:#ffb74d;cursor:pointer;font-size:0.7em;" onclick="generateHTML()"><i class="fas fa-file-code"></i> Gerar HTML fixo</button>
     <button class="btn-group" style="padding:5px 10px;border:1px solid #5a4520;border-radius:6px;background:#181008;color:#ce93d8;cursor:pointer;font-size:0.7em;" onclick="showSupabaseConfig()"><i class="fas fa-database"></i> Configurar BD</button>
-    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importNames(event)">
   </div>
 </header>
 <main>
@@ -1289,47 +1285,6 @@ function filterSounds() {
   }).join('');
 
   document.getElementById('stats').textContent = filtered.length + ' de ' + sounds.length + ' sons';
-}
-
-function exportNames() {
-  var blob = new Blob([JSON.stringify(customNames, null, 2)], {type: 'application/json'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url; a.download = 'tibia-sound-names.json';
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a);
-  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
-}
-
-function importNames(event) {
-  var file = event.target.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      var imported = JSON.parse(e.target.result);
-      for (var k in imported) { if (imported[k]) customNames[k] = imported[k]; }
-      saveNames();
-      filterSounds();
-      alert('Nomes importados com sucesso!');
-    } catch(err) { alert('Erro ao importar: ' + err.message); }
-  };
-  reader.readAsText(file);
-  event.target.value = '';
-}
-
-function generateHTML() {
-  var html = document.documentElement.outerHTML;
-  var newNames = JSON.stringify(customNames);
-  var injected = '<script>\nvar bakedNames = ' + newNames + ';\ntry { localStorage.setItem(\"tibiaSoundNames\", JSON.stringify(bakedNames)); } catch(e) {}\n<' + '/script>';
-  html = html.replace('<' + '/head', injected + '<' + '/head');
-  var blob = new Blob([html], {type: 'text/html'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url; a.download = 'tibia-soundboard-fixo.html';
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a);
-  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
 }
 
 window.addEventListener('scroll', function() {
