@@ -64,13 +64,7 @@ header {
   top: 0;
   z-index: 100;
 }
-header .top-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
+
 header h1 {
   font-size: 1.3em;
   color: var(--text);
@@ -80,7 +74,14 @@ header h1 {
 header h1 span { color: var(--accent); }
 header p { color: var(--text-dim); font-size: 0.75em; }
 
-/* THEME TOGGLE */
+/* THEME TOGGLE & AUTH */
+.top-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 .theme-toggle {
   background: var(--bg3);
   border: 1px solid var(--border);
@@ -102,6 +103,28 @@ header p { color: var(--text-dim); font-size: 0.75em; }
   background: var(--accent);
   color: #fff;
 }
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text);
+  font-size: 0.78em;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+.auth-btn:hover { border-color: var(--accent); background: var(--accent-bg); }
+.auth-btn img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+}
+.auth-btn .fa-google { color: #ea4335; }
 
 /* SEARCH */
 .search-bar {
@@ -318,8 +341,11 @@ footer a:hover { color: var(--accent-light); }
       <span class="active" data-theme-val="light"><i class="fas fa-sun"></i></span>
       <span data-theme-val="dark"><i class="fas fa-moon"></i></span>
     </div>
+    <button class="auth-btn" id="authBtn" onclick="handleAuth()">
+      <i class="fab fa-google"></i> Entrar
+    </button>
   </div>
-  <p>815 sons &middot; clique para ouvir &middot; lapis para renomear</p>
+  <p>815 sons &middot; clique para ouvir &middot; <span id="editHint">lapis para renomear (faça login)</span></p>
   <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Buscar por ID (#1), nome ou hash..." oninput="filterSounds()">
     <select id="sortSelect" onchange="filterSounds()">
@@ -1159,15 +1185,59 @@ var currentBtn = null;
 var customNames = {};
 var supabase = null;
 var supabaseConnected = false;
+var currentUser = null;
 
 var supabaseConfig = { url: 'https://nisiwytknqyrstjsfxah.supabase.co', key: 'sb_publishable_J3RF6yGZAmlHLjQOg150lw_hpdL09ul' };
 
 if (supabaseConfig.url && supabaseConfig.key) {
   try {
-    supabase = supabase.createClient(supabaseConfig.url, supabaseConfig.key);
+    supabase = supabase.createClient(supabaseConfig.url, supabaseConfig.key, {
+      auth: { persistSession: true, autoRefreshToken: true }
+    });
     supabaseConnected = true;
   } catch(e) { supabaseConnected = false; }
 }
+
+function handleAuth() {
+  if (currentUser) {
+    supabase.auth.signOut();
+  } else {
+    supabase.auth.signInWithOAuth({ provider: 'google' });
+  }
+}
+
+function updateAuthUI(user) {
+  currentUser = user;
+  var btn = document.getElementById('authBtn');
+  var hint = document.getElementById('editHint');
+  if (user) {
+    var pic = user.user_metadata?.avatar_url || user.identities?.[0]?.identity_data?.avatar_url || '';
+    var name = user.user_metadata?.full_name || user.email || 'User';
+    if (pic) {
+      btn.innerHTML = '<img src="' + pic + '" alt=""> ' + name.split(' ')[0] + ' <i class="fas fa-sign-out-alt" style="font-size:0.75em;opacity:0.6"></i>';
+    } else {
+      btn.innerHTML = '<i class="fas fa-user-circle"></i> ' + name.split(' ')[0] + ' <i class="fas fa-sign-out-alt" style="font-size:0.75em;opacity:0.6"></i>';
+    }
+    hint.textContent = 'lapis para renomear';
+  } else {
+    btn.innerHTML = '<i class="fab fa-google"></i> Entrar';
+    hint.textContent = 'lapis para renomear (faça login)';
+  }
+  filterSounds();
+}
+
+supabase.auth.getSession().then(function(resp) {
+  if (resp.data?.session?.user) updateAuthUI(resp.data.session.user);
+  if (supabaseConnected) loadFromSupabase();
+});
+
+supabase.auth.onAuthStateChange(function(event, session) {
+  updateAuthUI(session?.user || null);
+  if (event === 'SIGNED_IN') {
+    setTimeout(function() { if (supabaseConnected) loadFromSupabase(); }, 500);
+  }
+  filterSounds();
+});
 
 try {
   var saved = localStorage.getItem('tibiaSoundNames');
@@ -1192,7 +1262,7 @@ function syncToSupabase() {
       if (resp.error) {
         console.error('Supabase sync error:', resp.error.message);
         if (resp.error.message && resp.error.message.indexOf('relation') !== -1) {
-          alert('ERRO: Tabela "sound_names" nao existe no Supabase!\n\nVá em: https://supabase.com/dashboard/project/nisiwytknqyrstjsfxah/sql/new\nE cole o SQL:\n\nCREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "todos podem ler" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "todos podem inserir" ON sound_names FOR INSERT WITH CHECK (true);\nCREATE POLICY "todos podem atualizar" ON sound_names FOR UPDATE USING (true);\nCREATE POLICY "todos podem deletar" ON sound_names FOR DELETE USING (true);');
+          alert('ERRO: Tabela "sound_names" nao existe no Supabase!\n\nVá em: https://supabase.com/dashboard/project/nisiwytknqyrstjsfxah/sql/new\nE cole o SQL:\n\nCREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "ler anon" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "editar logado" ON sound_names FOR INSERT WITH CHECK (auth.role() = \'authenticated\');\nCREATE POLICY "editar logado" ON sound_names FOR UPDATE USING (auth.role() = \'authenticated\');\nCREATE POLICY "editar logado" ON sound_names FOR DELETE USING (auth.role() = \'authenticated\');');
         }
       }
     });
@@ -1203,11 +1273,11 @@ async function loadFromSupabase() {
   if (!supabaseConnected) return;
   var resp = await supabase.from('sound_names').select('sound_id,name');
   if (resp.error) {
-    if (resp.error.message && resp.error.message.indexOf('relation') !== -1) {
-      var sql = 'CREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "todos podem ler" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "todos podem inserir" ON sound_names FOR INSERT WITH CHECK (true);\nCREATE POLICY "todos podem atualizar" ON sound_names FOR UPDATE USING (true);\nCREATE POLICY "todos podem deletar" ON sound_names FOR DELETE USING (true);';
-      console.warn('SQL para criar tabela:\n' + sql);
-      alert('Banco de dados nao configurado!\n\nClique em OK e veja o video:\nhttps://youtu.be/FcE1DlPNJqI\n\nOu cole no SQL Editor do Supabase:\n' + sql);
-    }
+      if (resp.error.message && resp.error.message.indexOf('relation') !== -1) {
+        var sql = 'CREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "ler anon" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "editar logado" ON sound_names FOR INSERT WITH CHECK (auth.role() = \'authenticated\');\nCREATE POLICY "editar logado" ON sound_names FOR UPDATE USING (auth.role() = \'authenticated\');\nCREATE POLICY "editar logado" ON sound_names FOR DELETE USING (auth.role() = \'authenticated\');';
+        console.warn('SQL para criar tabela:\n' + sql);
+        alert('Banco de dados nao configurado!\n\nClique em OK e veja o video:\nhttps://youtu.be/FcE1DlPNJqI\n\nOu cole no SQL Editor do Supabase:\n' + sql);
+      }
     return;
   }
   if (resp.data && resp.data.length > 0) {
@@ -1281,6 +1351,10 @@ function downloadSound(sound, event) {
 
 function editName(soundId, event) {
   event.stopPropagation();
+  if (!currentUser) {
+    alert('Você precisa fazer login com Google para renomear sons!');
+    return;
+  }
   var current = customNames[soundId] || '';
   var newName = prompt('Nome para o som #' + soundId + ':', current);
   if (newName === null) return;
