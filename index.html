@@ -182,19 +182,19 @@ main {
 /* GRID */
 .sound-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
-@media (max-width: 1100px) { .sound-grid { grid-template-columns: repeat(4, 1fr); } }
-@media (max-width: 768px) { .sound-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; } }
-@media (max-width: 480px) { .sound-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; } }
+@media (max-width: 900px) { .sound-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
+@media (max-width: 600px) { .sound-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
+@media (max-width: 400px) { .sound-grid { grid-template-columns: 1fr; gap: 8px; } }
 
 /* CARDS */
 .sound-btn {
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 32px 10px 12px;
+  padding: 36px 12px 14px;
   color: var(--text);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -215,7 +215,7 @@ main {
 }
 .sound-btn .card-body {
   display: flex;
-  gap: 10px;
+  gap: 14px;
   align-items: center;
 }
 .sound-btn .card-left {
@@ -227,13 +227,13 @@ main {
 }
 .sound-btn .card-img {
   flex-shrink: 0;
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--bg3);
   border: 1px solid var(--border);
   cursor: pointer;
@@ -248,7 +248,7 @@ main {
   content: '\f03e';
   font-family: 'Font Awesome 6 Free';
   font-weight: 900;
-  font-size: 1.2em;
+  font-size: 1.5em;
   color: var(--text-muted);
   opacity: 0.4;
 }
@@ -269,27 +269,28 @@ main {
 .sound-btn .card-info {
   flex: 1;
   min-width: 0;
-  text-align: center;
+  text-align: left;
 }
 .sound-btn .id {
   color: var(--text-dim);
   font-size: 0.65em;
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
   font-weight: 600;
   letter-spacing: 0.5px;
   transition: color 0.2s;
+  text-align: left;
 }
 .sound-btn.playing .id { color: var(--accent); }
 .sound-btn .label {
   font-size: 1em;
   line-height: 1.4;
   display: block;
-  min-height: 2.4em;
   word-break: break-word;
-  padding: 2px 4px;
+  padding: 2px 0;
   color: var(--text);
   font-weight: 600;
+  text-align: left;
 }
 .sound-btn .label.empty {
   color: var(--text-muted);
@@ -301,14 +302,16 @@ main {
   font-size: 0.55em;
   color: var(--text-muted);
   display: block;
-  margin-top: 6px;
+  margin-top: 3px;
+  text-align: left;
 }
 .sound-btn .editor {
   display: block;
   font-size: 0.6em;
   color: #fff;
-  margin-top: 2px;
+  margin-top: 1px;
   opacity: 0.8;
+  text-align: left;
 }
 
 /* TOP ACTIONS */
