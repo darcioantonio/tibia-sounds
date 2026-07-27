@@ -1209,7 +1209,7 @@ function handleAuth() {
   if (currentUser) {
     if (sb) sb.auth.signOut();
   } else {
-    if (sb) sb.auth.signInWithOAuth({ provider: 'google' });
+    if (sb) sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
   }
 }
 
