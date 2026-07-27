@@ -488,9 +488,9 @@ footer a:hover { color: var(--accent-light); }
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 0;
-  max-width: 900px;
-  width: 95%;
-  max-height: 85vh;
+  max-width: 1200px;
+  width: 98%;
+  max-height: 92vh;
   box-shadow: 0 20px 60px rgba(0,0,0,0.3);
   transform: scale(0.95);
   transition: transform 0.25s;
@@ -532,9 +532,9 @@ footer a:hover { color: var(--accent-light); }
   min-height: 0;
 }
 .modal-side {
-  width: 280px;
+  width: 220px;
   flex-shrink: 0;
-  padding: 16px 20px;
+  padding: 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -592,6 +592,22 @@ footer a:hover { color: var(--accent-light); }
   color: var(--accent);
   border-color: var(--accent);
 }
+.modal-side .btn-wiki {
+  flex: 1;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.78em;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  min-width: 80px;
+}
+.modal-side .btn-wiki:hover {
+  background: var(--accent-bg);
+}
 .modal-iframe {
   flex: 1;
   border-left: 1px solid var(--border);
@@ -602,10 +618,14 @@ footer a:hover { color: var(--accent-light); }
   height: 100%;
   border: none;
 }
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   .modal-body { flex-direction: column; }
-  .modal-side { width: 100%; }
-  .modal-iframe { border-left: none; border-top: 1px solid var(--border); min-height: 300px; }
+  .modal-side { width: 100%; padding: 14px; }
+  .modal-iframe { display: none; }
+  .modal-side .btn-wiki { display: inline-flex !important; }
+}
+@media (min-width: 769px) {
+  .modal-side .btn-wiki { display: none !important; }
 }
 </style>
 </head>
@@ -1692,6 +1712,15 @@ function setImage(soundId, event) {
   var wrap = document.getElementById('modalIframeWrap');
   wrap.style.display = '';
   document.getElementById('modalIframe').src = 'https://www.tibiawiki.com.br';
+  var actions = document.getElementById('modalActions');
+  var btnWiki = actions.querySelector('.btn-wiki');
+  if (!btnWiki) {
+    btnWiki = document.createElement('button');
+    btnWiki.className = 'btn-wiki';
+    btnWiki.innerHTML = '<i class="fas fa-external-link-alt"></i> Abrir Tibia Wiki';
+    btnWiki.onclick = function() { window.open('https://www.tibiawiki.com.br','_blank'); };
+    actions.insertBefore(btnWiki, actions.firstChild);
+  }
   openModal();
 }
 
