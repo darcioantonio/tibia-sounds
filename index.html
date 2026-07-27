@@ -255,7 +255,7 @@ footer a:hover { color: #ffd700; text-decoration: underline; }
   </div>
   <div class="stats" id="stats"></div>
   <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
-    <button class="btn-group" style="padding:5px 10px;border:1px solid #5a4520;border-radius:6px;background:#181008;color:#ce93d8;cursor:pointer;font-size:0.7em;" onclick="showSupabaseConfig()"><i class="fas fa-database"></i> Configurar BD</button>
+
   </div>
 </header>
 <main>
@@ -1089,10 +1089,6 @@ var supabase = null;
 var supabaseConnected = false;
 
 var supabaseConfig = { url: 'https://nisiwytknqyrstjsfxah.supabase.co', key: 'sb_publishable_J3RF6yGZAmlHLjQOg150lw_hpdL09ul' };
-try {
-  var cfg = localStorage.getItem('tibiaSupabaseConfig');
-  if (cfg) { var parsed = JSON.parse(cfg); if (parsed.url) supabaseConfig = parsed; }
-} catch(e) {}
 
 if (supabaseConfig.url && supabaseConfig.key) {
   try {
@@ -1144,23 +1140,7 @@ async function loadFromSupabase() {
   }
 }
 
-function setupSupabase(url, key) {
-  supabaseConfig = { url: url, key: key };
-  try { localStorage.setItem('tibiaSupabaseConfig', JSON.stringify(supabaseConfig)); } catch(e) {}
-  try {
-    supabase = supabase.createClient(url, key);
-    supabaseConnected = true;
-    loadFromSupabase();
-  } catch(e) { supabaseConnected = false; alert('Erro ao conectar: ' + e.message); }
-}
 
-function showSupabaseConfig() {
-  var url = prompt('Supabase URL:', supabaseConfig.url || 'https://seu-projeto.supabase.co');
-  if (!url) return;
-  var key = prompt('Supabase anon key:', supabaseConfig.key || '');
-  if (!key) return;
-  setupSupabase(url, key);
-}
 
 function getLabel(s) {
   if (customNames[s.id]) return customNames[s.id];
