@@ -366,6 +366,97 @@ footer a:hover { color: var(--accent-light); }
   color: var(--accent);
   box-shadow: 0 4px 16px var(--shadow-hover);
 }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s;
+}
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+.modal-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  transform: scale(0.95);
+  transition: transform 0.25s;
+}
+.modal-overlay.open .modal-box {
+  transform: scale(1);
+}
+.modal-box h3 {
+  font-size: 1.1em;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.modal-box p {
+  font-size: 0.8em;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.modal-box input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg3);
+  color: var(--text);
+  font-size: 0.85em;
+  outline: none;
+  margin-bottom: 14px;
+  transition: border-color 0.2s;
+}
+.modal-box input:focus {
+  border-color: var(--accent);
+}
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.modal-actions button {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text);
+  font-size: 0.8em;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  min-width: 100px;
+}
+.modal-actions button:hover {
+  border-color: var(--accent);
+}
+.modal-actions .btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.modal-actions .btn-primary:hover {
+  opacity: 0.9;
+}
+.modal-actions .btn-link {
+  color: var(--accent);
+  border-color: var(--accent);
+}
 </style>
 </head>
 <body>
@@ -396,6 +487,21 @@ footer a:hover { color: var(--accent-light); }
 </main>
 <footer>Criado por <a href="https://www.instagram.com/darcioantonio" target="_blank" rel="noopener">Darcio</a></footer>
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo"><i class="fas fa-chevron-up"></i></button>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="imageModal" onclick="if(event.target===this)closeImageModal()">
+  <div class="modal-box">
+    <h3>Adicionar Imagem</h3>
+    <p>1. Va no <strong>Tibia Wiki</strong> e ache a imagem<br>
+    2. Clique com botao direito > Copiar endereco da imagem<br>
+    3. Cole no campo abaixo e clique em Salvar</p>
+    <input type="url" id="imageInput" placeholder="https://www.tibiawiki.com.br/images/..." autocomplete="off">
+    <div class="modal-actions">
+      <button class="btn-link" onclick="window.open('https://www.tibiawiki.com.br','_blank')"><i class="fas fa-external-link-alt"></i> Ir para Tibia Wiki</button>
+      <button class="btn-primary" onclick="saveImage()"><i class="fas fa-check"></i> Salvar</button>
+    </div>
+  </div>
+</div>
 <script>
 var sounds = [
   { id: 1, file: 'sound-0034ad7ab7e74517522294df5be3bfc00ea016953770882e799f4773daf87604.ogg', size: 45695 },
@@ -1424,21 +1530,25 @@ function editName(soundId, event) {
 function setImage(soundId, event) {
   event.stopPropagation();
   if (!currentUser) { handleAuth(); return; }
-  var current = customImages[soundId] || '';
-  var msg = 'Cole o link da imagem do Tibia Wiki:\n\n' +
-    '1. Va em https://www.tibiawiki.com.br\n' +
-    '2. Clique com botao direito na imagem\n' +
-    '3. Escolha "Copiar endereco da imagem"\n' +
-    '4. Cole aqui embaixo\n\n' +
-    'Link atual:';
-  var url = prompt(msg, current);
-  if (url === null) return;
-  url = url.trim();
+  document.getElementById('imageModal').classList.add('open');
+  document.getElementById('imageInput').value = customImages[soundId] || '';
+  document.getElementById('imageInput').focus();
+  window._imgSoundId = soundId;
+}
+
+function closeImageModal() {
+  document.getElementById('imageModal').classList.remove('open');
+}
+
+function saveImage() {
+  var soundId = window._imgSoundId;
+  var url = document.getElementById('imageInput').value.trim();
   if (url === '') {
     delete customImages[soundId];
   } else {
     customImages[soundId] = url;
   }
+  closeImageModal();
   saveNames();
   filterSounds();
 }
@@ -1524,6 +1634,9 @@ function toggleTheme() {
 
 window.addEventListener('scroll', function() {
   document.getElementById('backTop').classList.toggle('show', window.scrollY > 300);
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeImageModal();
 });
 if (sbConnected) loadFromSupabase();
 filterSounds();
