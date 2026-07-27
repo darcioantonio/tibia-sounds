@@ -1189,7 +1189,12 @@ function syncToSupabase() {
     }
     if (payload.length === 0) return;
     supabase.from('sound_names').upsert(payload, { onConflict: 'sound_id' }).then(function(resp) {
-      if (resp.error) console.warn('Supabase sync error (crie a tabela "sound_names" no SQL Editor):', resp.error ? resp.error.message : '');
+      if (resp.error) {
+        console.error('Supabase sync error:', resp.error.message);
+        if (resp.error.message && resp.error.message.indexOf('relation') !== -1) {
+          alert('ERRO: Tabela "sound_names" nao existe no Supabase!\n\nVá em: https://supabase.com/dashboard/project/nisiwytknqyrstjsfxah/sql/new\nE cole o SQL:\n\nCREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "todos podem ler" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "todos podem inserir" ON sound_names FOR INSERT WITH CHECK (true);\nCREATE POLICY "todos podem atualizar" ON sound_names FOR UPDATE USING (true);\nCREATE POLICY "todos podem deletar" ON sound_names FOR DELETE USING (true);');
+        }
+      }
     });
   }, 500);
 }
@@ -1199,7 +1204,9 @@ async function loadFromSupabase() {
   var resp = await supabase.from('sound_names').select('sound_id,name');
   if (resp.error) {
     if (resp.error.message && resp.error.message.indexOf('relation') !== -1) {
-      console.warn('Execute este SQL no Supabase SQL Editor:\nCREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "todos podem ler" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "todos podem inserir" ON sound_names FOR INSERT WITH CHECK (true);\nCREATE POLICY "todos podem atualizar" ON sound_names FOR UPDATE USING (true);');
+      var sql = 'CREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "todos podem ler" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "todos podem inserir" ON sound_names FOR INSERT WITH CHECK (true);\nCREATE POLICY "todos podem atualizar" ON sound_names FOR UPDATE USING (true);\nCREATE POLICY "todos podem deletar" ON sound_names FOR DELETE USING (true);';
+      console.warn('SQL para criar tabela:\n' + sql);
+      alert('Banco de dados nao configurado!\n\nClique em OK e veja o video:\nhttps://youtu.be/FcE1DlPNJqI\n\nOu cole no SQL Editor do Supabase:\n' + sql);
     }
     return;
   }
