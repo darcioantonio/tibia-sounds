@@ -1788,7 +1788,6 @@ function editName(soundId, event) {
   document.getElementById('modalDesc').textContent = 'Digite o nome para este som:';
   document.getElementById('modalInput').value = customNames[soundId] || '';
   document.getElementById('modalInput').placeholder = 'Ex: Dragon, Fire Wave...';
-  document.getElementById('modalIframeWrap').style.display = 'none';
   document.getElementById('modalBox').style.maxWidth = '400px';
   document.getElementById('modalBox').style.width = '90%';
   document.getElementById('modalBox').style.height = 'auto';
@@ -1804,7 +1803,6 @@ function setImage(soundId, event) {
   document.getElementById('modalDesc').innerHTML = '1. Clique em "Abrir Tibia Wiki"<br>2. Botao direito na imagem > Copiar endereco<br>3. Cole abaixo e clique em Salvar';
   document.getElementById('modalInput').value = customImages[soundId] || '';
   document.getElementById('modalInput').placeholder = 'https://www.tibiawiki.com.br/images/...';
-  document.getElementById('modalIframeWrap').style.display = 'none';
   document.getElementById('modalBox').style.maxWidth = '440px';
   document.getElementById('modalBox').style.width = '90%';
   document.getElementById('modalBox').style.height = 'auto';
