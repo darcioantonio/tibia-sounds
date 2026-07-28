@@ -346,6 +346,16 @@ main {
 .sound-btn .editing-badge i {
   font-size: 0.7em;
 }
+.sound-btn.editing-other {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+}
+.sound-btn.editing-other .edit-inline,
+.sound-btn.editing-other .card-img {
+  pointer-events: none;
+  opacity: 0.35;
+  cursor: not-allowed;
+}
 
 /* CARD LAYOUT */
 .ci-top {
@@ -1759,13 +1769,25 @@ var syncTimer = null;
 function syncToSupabase() {
   if (syncTimer) clearTimeout(syncTimer);
   syncTimer = setTimeout(function() {
-    var payload = [];
-    var userName = currentUser ? (currentUser.user_metadata?.full_name || currentUser.email || 'Alguem') : 'Alguem';
+    var allIds = {};
     for (var id in customNames) {
       if (id.toString().indexOf('_by') !== -1) continue;
+      allIds[id] = true;
+    }
+    for (var id in customImages) {
+      if (id.toString().indexOf('_by') !== -1) continue;
+      allIds[id] = true;
+    }
+    var payload = [];
+    var userName = currentUser ? (currentUser.user_metadata?.full_name || currentUser.email || 'Alguem') : 'Alguem';
+    for (var id in allIds) {
+      var name = customNames[id] || '';
+      var nameBy = customNames[id + '_by'] || null;
       var img = customImages[id] || null;
       var imgBy = customImages[id + '_by'] || null;
-      payload.push({ sound_id: parseInt(id), name: customNames[id], updated_by: userName, image_url: img, image_updated_by: imgBy });
+      if (name || img) {
+        payload.push({ sound_id: parseInt(id), name: name, updated_by: nameBy || userName, image_url: img, image_updated_by: imgBy });
+      }
     }
     if (payload.length === 0 || !sb) return;
     sb.from('sound_names').upsert(payload, { onConflict: 'sound_id' }).then(function(resp) {
@@ -2072,11 +2094,12 @@ function filterSounds() {
     imgHtml += '</div>';
     var imgEditorHtml = imgEditor ? '<span class="img-editor">por ' + imgEditor + '</span>' : '';
     var editUser = editingStatus[s.id];
+    var editingOther = editUser && editUser !== currentUserName;
     var editingHtml = '';
-    if (editUser && editUser !== currentUserName) {
+    if (editingOther) {
       editingHtml = '<span class="editing-badge"><i class="fas fa-pencil-alt"></i> ' + editUser + '</span>';
     }
-    return '<div class="sound-btn" onclick="playSound(sounds[' + (s.id - 1) + '], this)" title="Som #' + s.id + '\nHash: ' + h + '\nTamanho: ' + formatSize(s.size) + (label ? '\nNome: ' + label : '') + '">' +
+    return '<div class="sound-btn' + (editingOther ? ' editing-other' : '') + '" onclick="playSound(sounds[' + (s.id - 1) + '], this)" title="Som #' + s.id + '\nHash: ' + h + '\nTamanho: ' + formatSize(s.size) + (label ? '\nNome: ' + label : '') + '">' +
       '<div class="card-body">' +
       '<div class="card-left">' +
       imgHtml +
