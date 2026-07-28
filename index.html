@@ -1654,14 +1654,14 @@ function initRealtime() {
   if (!sb || !sbConnected) { console.warn('Realtime: sb not connected'); return; }
   console.log('Realtime: init...');
   rtEditing = sb.channel('editing-status', { config: { broadcast: { ack: false, self: true } } });
-  rtEditing.on('broadcast', { event: 'editing' }, function(payload) {
-    console.log('Realtime editing received:', payload);
-    editingStatus[payload.sound_id] = payload.user;
+  rtEditing.on('broadcast', { event: 'editing' }, function(msg) {
+    console.log('Realtime editing received:', msg);
+    editingStatus[msg.payload.sound_id] = msg.payload.user;
     filterSounds();
   });
-  rtEditing.on('broadcast', { event: 'stopped_editing' }, function(payload) {
-    console.log('Realtime stopped_editing received:', payload);
-    delete editingStatus[payload.sound_id];
+  rtEditing.on('broadcast', { event: 'stopped_editing' }, function(msg) {
+    console.log('Realtime stopped_editing received:', msg);
+    delete editingStatus[msg.payload.sound_id];
     filterSounds();
   });
   rtEditing.subscribe(function(status) { console.log('Editing channel:', status); });
