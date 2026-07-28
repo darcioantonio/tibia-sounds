@@ -644,6 +644,25 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
 .modal-side .btn-wiki:hover {
   background: var(--accent-bg);
 }
+
+/* HEARTS ANIMATION */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+@keyframes heartFall {
+  0% { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(calc(100vh)) rotate(360deg) scale(0.3); opacity: 0; }
+}
+.heart-particle {
+  position: absolute;
+  top: -30px;
+  font-size: 16px;
+  color: #ff6b6b;
+  pointer-events: none;
+  animation: heartFall linear forwards;
+  z-index: 0;
+}
 .modal-iframe {
   flex: 1;
   border-left: 1px solid var(--border);
@@ -725,35 +744,38 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
 
 <!-- DONATE MODAL -->
 <div class="modal-overlay" id="donateModal" onclick="">
-  <div class="modal-box" style="max-width:500px;width:90%;height:auto;max-height:90vh">
-    <div class="modal-header">
-      <h3>Apoie o Projeto <span style="color:#ff6b6b">&#9829;</span></h3>
-      <button onclick="closeDonateModal()" title="Fechar" style="color:#ef4444"><i class="fas fa-times"></i></button>
+  <div class="modal-box" id="donateBox" style="max-width:650px;width:92%;height:auto;max-height:92vh;background:linear-gradient(135deg,#1a0a0a 0%,#0d0a14 50%,#0a0a1a 100%)">
+    <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:16px" id="heartsContainer"></div>
+    <div class="modal-header" style="border-bottom-color:#2a1a1a;position:relative;z-index:1">
+      <h3 style="font-size:1.1em">Apoie o Projeto <span style="color:#ff6b6b;display:inline-block;animation:pulse 1s infinite">&#9829;</span></h3>
+      <button onclick="closeDonateModal()" title="Fechar" style="color:#ef4444;position:relative;z-index:1"><i class="fas fa-times"></i></button>
     </div>
-    <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
-      <div style="display:flex;gap:16px;align-items:center;background:var(--bg3);border-radius:12px;padding:16px">
-        <img src="pix.png" alt="PIX QR Code" style="width:120px;height:120px;border-radius:8px;flex-shrink:0">
-        <div>
-          <div style="font-weight:700;font-size:1em;color:var(--text);margin-bottom:4px">PIX</div>
-          <div style="font-size:0.8em;color:var(--text-dim);word-break:break-all">14996659919</div>
-          <div style="font-size:0.7em;color:var(--text-muted);margin-top:4px">Escaneie o QR Code ou copie a chave</div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:16px;position:relative;z-index:1">
+      <div style="display:flex;gap:20px;align-items:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,107,107,0.2);border-radius:16px;padding:20px;backdrop-filter:blur(8px)">
+        <img src="pix.png" alt="PIX QR Code" style="width:150px;height:150px;border-radius:10px;flex-shrink:0;box-shadow:0 4px 20px rgba(0,0,0,0.4)">
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:1.2em;color:#48dbfb;margin-bottom:6px;display:flex;align-items:center;gap:8px">
+            <i class="fas fa-qrcode" style="color:#48dbfb"></i> PIX
+          </div>
+          <div style="font-size:0.9em;color:#ffd700;font-weight:600;word-break:break-all;background:rgba(0,0,0,0.3);padding:8px 12px;border-radius:8px;border:1px dashed rgba(255,215,0,0.3);margin-bottom:6px">14996659919</div>
+          <div style="font-size:0.75em;color:var(--text-muted)">Escaneie o QR Code ou copie a chave</div>
         </div>
       </div>
-      <a href="https://picpay.me/darcio" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:14px;background:var(--bg3);border-radius:12px;padding:16px;text-decoration:none;transition:all 0.2s;border:1px solid var(--border)" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <img src="https://logodownload.org/wp-content/uploads/2018/12/picpay-logo.png" alt="PicPay" style="width:40px;height:40px;border-radius:6px;flex-shrink:0">
-        <div>
-          <div style="font-weight:700;font-size:1em;color:var(--text)">PicPay</div>
+      <a href="https://picpay.me/darcio" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:16px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,200,150,0.2);border-radius:14px;padding:16px 20px;text-decoration:none;transition:all 0.3s;backdrop-filter:blur(8px)" onmouseover="this.style.borderColor='#00c896';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,200,150,0.15)'" onmouseout="this.style.borderColor='rgba(0,200,150,0.2)';this.style.transform='';this.style.boxShadow=''">
+        <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#00c896,#00a87a);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.5em;color:#fff;box-shadow:0 4px 12px rgba(0,200,150,0.3)">&#9829;</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:1em;color:#00c896">PicPay</div>
           <div style="font-size:0.8em;color:var(--text-dim)">@darcio</div>
         </div>
-        <i class="fas fa-external-link-alt" style="margin-left:auto;color:var(--accent)"></i>
+        <i class="fas fa-chevron-right" style="color:#00c896;font-size:0.9em"></i>
       </a>
-      <a href="https://livepix.gg/darcio" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:14px;background:var(--bg3);border-radius:12px;padding:16px;text-decoration:none;transition:all 0.2s;border:1px solid var(--border)" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="width:40px;height:40px;border-radius:6px;background:#ff6b6b;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3em;color:#fff">&#9829;</div>
-        <div>
-          <div style="font-weight:700;font-size:1em;color:var(--text)">Livepix</div>
+      <a href="https://livepix.gg/darcio" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:16px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,107,107,0.2);border-radius:14px;padding:16px 20px;text-decoration:none;transition:all 0.3s;backdrop-filter:blur(8px)" onmouseover="this.style.borderColor='#ff6b6b';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(255,107,107,0.15)'" onmouseout="this.style.borderColor='rgba(255,107,107,0.2)';this.style.transform='';this.style.boxShadow=''">
+        <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.5em;color:#fff;box-shadow:0 4px 12px rgba(255,107,107,0.3)">&#9829;</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:1em;color:#ff6b6b">Livepix</div>
           <div style="font-size:0.8em;color:var(--text-dim)">Apoie com cartao</div>
         </div>
-        <i class="fas fa-external-link-alt" style="margin-left:auto;color:var(--accent)"></i>
+        <i class="fas fa-chevron-right" style="color:#ff6b6b;font-size:0.9em"></i>
       </a>
     </div>
   </div>
@@ -1819,9 +1841,32 @@ function toggleSaveBtn() {
 
 function openDonateModal() {
   document.getElementById('donateModal').classList.add('open');
+  startHearts();
 }
 function closeDonateModal() {
   document.getElementById('donateModal').classList.remove('open');
+  stopHearts();
+}
+
+var heartsInterval = null;
+function startHearts() {
+  var container = document.getElementById('heartsContainer');
+  heartsInterval = setInterval(function() {
+    var heart = document.createElement('span');
+    heart.className = 'heart-particle';
+    heart.innerHTML = '&#9829;';
+    heart.style.left = Math.random() * 100 + '%';
+    heart.style.fontSize = (10 + Math.random() * 20) + 'px';
+    heart.style.animationDuration = (3 + Math.random() * 4) + 's';
+    heart.style.opacity = 0.3 + Math.random() * 0.7;
+    container.appendChild(heart);
+    setTimeout(function() { heart.remove(); }, 7000);
+  }, 300);
+}
+function stopHearts() {
+  if (heartsInterval) clearInterval(heartsInterval);
+  heartsInterval = null;
+  document.getElementById('heartsContainer').innerHTML = '';
 }
 
 function closeModal() {
@@ -1950,7 +1995,7 @@ window.addEventListener('scroll', function() {
   document.getElementById('backTop').classList.toggle('show', window.scrollY > 300);
 });
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') { closeModal(); closeDonateModal(); }
+  if (e.key === 'Escape') { closeModal(); stopHearts(); closeDonateModal(); }
 });
 if (sbConnected) loadFromSupabase();
 filterSounds();
