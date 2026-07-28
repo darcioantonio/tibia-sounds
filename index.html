@@ -722,7 +722,7 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
 
 <!-- MODAL -->
 <div class="modal-overlay" id="mainModal" onclick="">
-  <div class="modal-box">
+  <div class="modal-box" id="modalBox">
     <div class="modal-header">
       <h3 id="modalTitle">Adicionar Imagem</h3>
       <button onclick="closeModal()" title="Fechar" style="color:#ef4444"><i class="fas fa-times"></i></button>
@@ -1802,10 +1802,13 @@ function editName(soundId, event) {
   window._modalSoundId = soundId;
   window._modalMode = 'name';
   document.getElementById('modalTitle').textContent = 'Renomear Som #' + soundId;
-  document.getElementById('modalDesc').textContent = 'Digite o nome que você quer dar para este som:';
+  document.getElementById('modalDesc').textContent = 'Digite o nome para este som:';
   document.getElementById('modalInput').value = customNames[soundId] || '';
-  document.getElementById('modalInput').placeholder = 'Ex: Dragon, Fire Wave, ...';
+  document.getElementById('modalInput').placeholder = 'Ex: Dragon, Fire Wave...';
   document.getElementById('modalIframeWrap').style.display = 'none';
+  document.getElementById('modalBox').style.maxWidth = '400px';
+  document.getElementById('modalBox').style.width = '90%';
+  document.getElementById('modalBox').style.height = 'auto';
   openModal();
 }
 
@@ -1820,7 +1823,11 @@ function setImage(soundId, event) {
   document.getElementById('modalInput').placeholder = 'https://www.tibiawiki.com.br/images/...';
   var wrap = document.getElementById('modalIframeWrap');
   wrap.style.display = '';
-  document.getElementById('modalIframe').src = 'https://www.tibiawiki.com.br';
+  var iframe = document.getElementById('modalIframe');
+  if (!iframe.src) iframe.src = 'https://www.tibiawiki.com.br';
+  document.getElementById('modalBox').style.maxWidth = '1600px';
+  document.getElementById('modalBox').style.width = '95vw';
+  document.getElementById('modalBox').style.height = '95vh';
   var actions = document.getElementById('modalActions');
   var btnWiki = actions.querySelector('.btn-wiki');
   if (!btnWiki) {
