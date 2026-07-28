@@ -1954,10 +1954,18 @@ function filterSounds() {
   else if (sort === 'size') filtered.sort(function(a, b) { return a.size - b.size; });
   else if (sort === 'edited') {
     filtered.sort(function(a, b) {
-      var na = !!(customNames[a.id] && customNames[a.id].trim());
-      var nb = !!(customNames[b.id] && customNames[b.id].trim());
-      if (na && !nb) return -1;
-      if (!na && nb) return 1;
+      var editedA = !!(customNames[a.id] && customNames[a.id].trim()) || !!(customImages[a.id]);
+      var editedB = !!(customNames[b.id] && customNames[b.id].trim()) || !!(customImages[b.id]);
+      if (editedA && !editedB) return -1;
+      if (!editedA && editedB) return 1;
+      if (editedA && editedB) {
+        var nameA = (customNames[a.id] || '').toLowerCase();
+        var nameB = (customNames[b.id] || '').toLowerCase();
+        if (nameA && nameB) return nameA.localeCompare(nameB);
+        if (nameA && !nameB) return -1;
+        if (!nameA && nameB) return 1;
+        return a.id - b.id;
+      }
       return a.id - b.id;
     });
   }
