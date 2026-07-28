@@ -574,6 +574,9 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
   font-size: 0.85em;
   color: var(--text-dim);
   line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .modal-side input {
   width: 100%;
@@ -632,9 +635,9 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
   flex: 1;
   padding: 11px 16px;
   border-radius: 10px;
-  border: 1px solid var(--accent);
-  background: transparent;
-  color: var(--accent);
+  border: 1px solid #f59e0b;
+  background: rgba(245,158,11,0.1);
+  color: #f59e0b;
   font-size: 0.85em;
   cursor: pointer;
   transition: all 0.2s;
@@ -642,7 +645,7 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
   min-width: 80px;
 }
 .modal-side .btn-wiki:hover {
-  background: var(--accent-bg);
+  background: rgba(245,158,11,0.2);
 }
 
 /* HEARTS ANIMATION */
@@ -1788,6 +1791,7 @@ function editName(soundId, event) {
   document.getElementById('modalDesc').textContent = 'Digite o nome para este som:';
   document.getElementById('modalInput').value = customNames[soundId] || '';
   document.getElementById('modalInput').placeholder = 'Ex: Dragon, Fire Wave...';
+  document.getElementById('modalActions').style.justifyContent = '';
   document.getElementById('modalBox').style.maxWidth = '400px';
   document.getElementById('modalBox').style.width = '90%';
   document.getElementById('modalBox').style.height = 'auto';
@@ -1800,13 +1804,14 @@ function setImage(soundId, event) {
   window._modalSoundId = soundId;
   window._modalMode = 'image';
   document.getElementById('modalTitle').textContent = 'Adicionar Imagem';
-  document.getElementById('modalDesc').innerHTML = '1. Clique em "Abrir Tibia Wiki"<br>2. Botao direito na imagem > Copiar endereco<br>3. Cole abaixo e clique em Salvar';
+  document.getElementById('modalDesc').textContent = 'Abra o Tibia Wiki, copie o link da imagem e cole abaixo:';
   document.getElementById('modalInput').value = customImages[soundId] || '';
   document.getElementById('modalInput').placeholder = 'https://www.tibiawiki.com.br/images/...';
   document.getElementById('modalBox').style.maxWidth = '440px';
   document.getElementById('modalBox').style.width = '90%';
   document.getElementById('modalBox').style.height = 'auto';
   var actions = document.getElementById('modalActions');
+  actions.style.justifyContent = 'space-between';
   var btnWiki = actions.querySelector('.btn-wiki');
   if (!btnWiki) {
     btnWiki = document.createElement('button');
