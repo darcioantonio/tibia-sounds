@@ -688,6 +688,7 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
       <option value="id">Ordem original</option>
       <option value="name">Ordem alfabetica</option>
       <option value="size">Por tamanho</option>
+      <option value="edited">Editados</option>
     </select>
   </div>
   <div class="stats" id="stats"></div>
@@ -1953,6 +1954,15 @@ function filterSounds() {
     });
   }
   else if (sort === 'size') filtered.sort(function(a, b) { return a.size - b.size; });
+  else if (sort === 'edited') {
+    filtered.sort(function(a, b) {
+      var na = !!(customNames[a.id] && customNames[a.id].trim());
+      var nb = !!(customNames[b.id] && customNames[b.id].trim());
+      if (na && !nb) return -1;
+      if (!na && nb) return 1;
+      return a.id - b.id;
+    });
+  }
 
   if (filtered.length === 0) {
     grid.innerHTML = '<div class="no-results">Nenhum som encontrado</div>';
