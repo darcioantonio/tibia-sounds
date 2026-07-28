@@ -1639,11 +1639,11 @@ var sbConfig = { url: 'https://nisiwytknqyrstjsfxah.supabase.co', key: 'sb_publi
 if (sbConfig.url && sbConfig.key) {
   try {
     sb = window.supabase.createClient(sbConfig.url, sbConfig.key, {
-      auth: { persistSession: true, autoRefreshToken: true },
-      realtime: { channels: { broadcast: { ack: false } } }
+      auth: { persistSession: true, autoRefreshToken: true }
     });
     sbConnected = true;
-  } catch(e) { sbConnected = false; }
+    console.log('Supabase client created, sbConnected:', sbConnected);
+  } catch(e) { sbConnected = false; console.error('Supabase init error:', e); }
 }
 
 var editingStatus = {};
@@ -1651,20 +1651,24 @@ var rtEditing = null;
 var rtDbChanges = null;
 
 function initRealtime() {
-  if (!sb || !sbConnected) return;
-  rtEditing = sb.channel('editing-status');
+  if (!sb || !sbConnected) { console.warn('Realtime: sb not connected'); return; }
+  console.log('Realtime: init...');
+  rtEditing = sb.channel('editing-status', { config: { broadcast: { ack: false, self: true } } });
   rtEditing.on('broadcast', { event: 'editing' }, function(payload) {
+    console.log('Realtime editing received:', payload);
     editingStatus[payload.sound_id] = payload.user;
     filterSounds();
   });
   rtEditing.on('broadcast', { event: 'stopped_editing' }, function(payload) {
+    console.log('Realtime stopped_editing received:', payload);
     delete editingStatus[payload.sound_id];
     filterSounds();
   });
-  rtEditing.subscribe();
+  rtEditing.subscribe(function(status) { console.log('Editing channel:', status); });
 
   rtDbChanges = sb.channel('db-sound-names');
   rtDbChanges.on('postgres_changes', { event: '*', schema: 'public', table: 'sound_names' }, function(payload) {
+    console.log('DB change received:', payload.eventType, payload.new ? payload.new.sound_id : payload.old.sound_id);
     var row = payload.new;
     if (payload.eventType === 'DELETE') {
       var oldId = payload.old.sound_id;
@@ -1689,7 +1693,7 @@ function initRealtime() {
     try { localStorage.setItem('tibiaSoundImages', JSON.stringify(customImages)); } catch(e) {}
     filterSounds();
   });
-  rtDbChanges.subscribe();
+  rtDbChanges.subscribe(function(status) { console.log('DB changes channel:', status); });
 }
 
 function getCurrentUserName() {
