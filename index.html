@@ -696,7 +696,7 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
     <a href="https://www.instagram.com/darcioantonio" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
     <a href="https://www.twitch.tv/darcio_" target="_blank" rel="noopener" title="Twitch"><i class="fab fa-twitch"></i></a>
     <a href="https://wa.me/5514988035885" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-    <a href="https://livepix.gg/darcio" target="_blank" rel="noopener" title="Donate" style="color:#ff6b6b"><i class="fas fa-heart"></i></a>
+    <a href="javascript:void(0)" onclick="openDonateModal()" title="Donate" style="color:#ff6b6b"><i class="fas fa-heart"></i></a>
   </span>
 </footer>
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo"><i class="fas fa-chevron-up"></i></button>
@@ -719,6 +719,42 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
       <div class="modal-iframe" id="modalIframeWrap">
         <iframe id="modalIframe" src=""></iframe>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- DONATE MODAL -->
+<div class="modal-overlay" id="donateModal" onclick="">
+  <div class="modal-box" style="max-width:500px;width:90%;height:auto;max-height:90vh">
+    <div class="modal-header">
+      <h3>Apoie o Projeto <span style="color:#ff6b6b">&#9829;</span></h3>
+      <button onclick="closeDonateModal()" title="Fechar" style="color:#ef4444"><i class="fas fa-times"></i></button>
+    </div>
+    <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;gap:16px;align-items:center;background:var(--bg3);border-radius:12px;padding:16px">
+        <img src="pix.png" alt="PIX QR Code" style="width:120px;height:120px;border-radius:8px;flex-shrink:0">
+        <div>
+          <div style="font-weight:700;font-size:1em;color:var(--text);margin-bottom:4px">PIX</div>
+          <div style="font-size:0.8em;color:var(--text-dim);word-break:break-all">14996659919</div>
+          <div style="font-size:0.7em;color:var(--text-muted);margin-top:4px">Escaneie o QR Code ou copie a chave</div>
+        </div>
+      </div>
+      <a href="https://picpay.me/darcio" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:14px;background:var(--bg3);border-radius:12px;padding:16px;text-decoration:none;transition:all 0.2s;border:1px solid var(--border)" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <img src="https://logodownload.org/wp-content/uploads/2018/12/picpay-logo.png" alt="PicPay" style="width:40px;height:40px;border-radius:6px;flex-shrink:0">
+        <div>
+          <div style="font-weight:700;font-size:1em;color:var(--text)">PicPay</div>
+          <div style="font-size:0.8em;color:var(--text-dim)">@darcio</div>
+        </div>
+        <i class="fas fa-external-link-alt" style="margin-left:auto;color:var(--accent)"></i>
+      </a>
+      <a href="https://livepix.gg/darcio" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:14px;background:var(--bg3);border-radius:12px;padding:16px;text-decoration:none;transition:all 0.2s;border:1px solid var(--border)" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="width:40px;height:40px;border-radius:6px;background:#ff6b6b;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3em;color:#fff">&#9829;</div>
+        <div>
+          <div style="font-weight:700;font-size:1em;color:var(--text)">Livepix</div>
+          <div style="font-size:0.8em;color:var(--text-dim)">Apoie com cartao</div>
+        </div>
+        <i class="fas fa-external-link-alt" style="margin-left:auto;color:var(--accent)"></i>
+      </a>
     </div>
   </div>
 </div>
@@ -1781,6 +1817,13 @@ function toggleSaveBtn() {
   btn.disabled = window._modalMode === 'image' && val === '';
 }
 
+function openDonateModal() {
+  document.getElementById('donateModal').classList.add('open');
+}
+function closeDonateModal() {
+  document.getElementById('donateModal').classList.remove('open');
+}
+
 function closeModal() {
   document.getElementById('mainModal').classList.remove('open');
   document.getElementById('modalInput').removeEventListener('input', toggleSaveBtn);
@@ -1907,7 +1950,7 @@ window.addEventListener('scroll', function() {
   document.getElementById('backTop').classList.toggle('show', window.scrollY > 300);
 });
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') { closeModal(); closeDonateModal(); }
 });
 if (sbConnected) loadFromSupabase();
 filterSounds();
