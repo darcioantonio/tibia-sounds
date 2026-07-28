@@ -1607,7 +1607,7 @@ var sb = null;
 var sbConnected = false;
 var currentUser = null;
 
-var sbConfig = { url: 'https://nisiwytknqyrstjsfxah.supabase.co', key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5pc2l3eXRrbnF5cnN0anNmeGFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxODM0ODcsImV4cCI6MjEwMDc1OTQ4N30.kS46zm8qPE258r6oEWNqygOh8SbdIBp0PjrZcmRmeo8' };
+var sbConfig = { url: 'https://nisiwytknqyrstjsfxah.supabase.co', key: 'sb_publishable_J3RF6yGZAmlHLjQOg150lw_hpdL09ul' };
 
 if (sbConfig.url && sbConfig.key) {
   try {
@@ -1704,11 +1704,18 @@ async function loadFromSupabase() {
   if (!sbConnected || !sb) return;
   var resp = await sb.from('sound_names').select('sound_id,name,updated_by,image_url,image_updated_by');
   if (resp.error) {
-      if (resp.error.message && resp.error.message.indexOf('relation') !== -1) {
-        var sql = 'CREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL, updated_by TEXT, image_url TEXT, image_updated_by TEXT);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "ler anon" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "inserir logado" ON sound_names FOR INSERT WITH CHECK (auth.role() = \'authenticated\');\nCREATE POLICY "atualizar logado" ON sound_names FOR UPDATE USING (auth.role() = \'authenticated\');\nCREATE POLICY "deletar logado" ON sound_names FOR DELETE USING (auth.role() = \'authenticated\');';
-        console.warn('SQL para criar tabela:\n' + sql);
-        alert('Banco de dados nao configurado!\n\nClique em OK e veja o video:\nhttps://youtu.be/FcE1DlPNJqI\n\nOu cole no SQL Editor do Supabase:\n' + sql);
-      }
+    console.error('Supabase load error:', resp.error);
+    console.error('Supabase full error:', JSON.stringify(resp.error));
+    if (resp.error.message && resp.error.message.indexOf('relation') !== -1) {
+      var sql = 'CREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL, updated_by TEXT, image_url TEXT, image_updated_by TEXT);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "ler anon" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "inserir logado" ON sound_names FOR INSERT WITH CHECK (auth.role() = \'authenticated\');\nCREATE POLICY "atualizar logado" ON sound_names FOR UPDATE USING (auth.role() = \'authenticated\');\nCREATE POLICY "deletar logado" ON sound_names FOR DELETE USING (auth.role() = \'authenticated\');';
+      console.warn('SQL para criar tabela:\n' + sql);
+      alert('Banco de dados nao configurado!\n\nClique em OK e veja o video:\nhttps://youtu.be/FcE1DlPNJqI\n\nOu cole no SQL Editor do Supabase:\n' + sql);
+    } else if (resp.error.message && resp.error.message.indexOf('Invalid API key') !== -1) {
+      alert('Erro de autenticacao: a chave do Supabase parece invalida.\nVerifique as configuracoes.');
+    } else if (resp.error.code === '42P01') {
+      var sql = 'CREATE TABLE sound_names (sound_id INTEGER PRIMARY KEY, name TEXT NOT NULL, updated_by TEXT, image_url TEXT, image_updated_by TEXT);\nALTER TABLE sound_names ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "ler anon" ON sound_names FOR SELECT USING (true);\nCREATE POLICY "inserir logado" ON sound_names FOR INSERT WITH CHECK (auth.role() = \'authenticated\');\nCREATE POLICY "atualizar logado" ON sound_names FOR UPDATE USING (auth.role() = \'authenticated\');\nCREATE POLICY "deletar logado" ON sound_names FOR DELETE USING (auth.role() = \'authenticated\');';
+      alert('Tabela sound_names nao existe!\n\nCole no SQL Editor do Supabase:\n' + sql);
+    }
     return;
   }
   if (resp.data && resp.data.length > 0) {
