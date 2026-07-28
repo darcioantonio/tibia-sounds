@@ -663,24 +663,9 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
   animation: heartFall linear forwards;
   z-index: 0;
 }
-.modal-iframe {
-  flex: 1;
-  border-left: 1px solid var(--border);
-  background: #fff;
-}
-.modal-iframe iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
 @media (max-width: 768px) {
   .modal-body { flex-direction: column; }
   .modal-side { width: 100%; padding: 14px; }
-  .modal-iframe { display: none; }
-  .modal-side .btn-wiki { display: inline-flex !important; }
-}
-@media (min-width: 769px) {
-  .modal-side .btn-wiki { display: none !important; }
 }
 </style>
 </head>
@@ -734,9 +719,6 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
         <div class="modal-actions" id="modalActions">
           <button class="btn-primary" id="modalSaveBtn" onclick="saveModal()" disabled><i class="fas fa-check"></i> Salvar</button>
         </div>
-      </div>
-      <div class="modal-iframe" id="modalIframeWrap">
-        <iframe id="modalIframe" src=""></iframe>
       </div>
     </div>
   </div>
@@ -1818,16 +1800,13 @@ function setImage(soundId, event) {
   window._modalSoundId = soundId;
   window._modalMode = 'image';
   document.getElementById('modalTitle').textContent = 'Adicionar Imagem';
-  document.getElementById('modalDesc').innerHTML = 'Navegue pelo Tibia Wiki ao lado, clique com botao direito na imagem, copiar link da imagem, cole no campo a esquerda e depois salvar.';
+  document.getElementById('modalDesc').innerHTML = '1. Clique em "Abrir Tibia Wiki"<br>2. Botao direito na imagem > Copiar endereco<br>3. Cole abaixo e clique em Salvar';
   document.getElementById('modalInput').value = customImages[soundId] || '';
   document.getElementById('modalInput').placeholder = 'https://www.tibiawiki.com.br/images/...';
-  var wrap = document.getElementById('modalIframeWrap');
-  wrap.style.display = '';
-  var iframe = document.getElementById('modalIframe');
-  if (!iframe.src) iframe.src = 'https://www.tibiawiki.com.br';
-  document.getElementById('modalBox').style.maxWidth = '1600px';
-  document.getElementById('modalBox').style.width = '95vw';
-  document.getElementById('modalBox').style.height = '95vh';
+  document.getElementById('modalIframeWrap').style.display = 'none';
+  document.getElementById('modalBox').style.maxWidth = '440px';
+  document.getElementById('modalBox').style.width = '90%';
+  document.getElementById('modalBox').style.height = 'auto';
   var actions = document.getElementById('modalActions');
   var btnWiki = actions.querySelector('.btn-wiki');
   if (!btnWiki) {
