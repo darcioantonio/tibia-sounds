@@ -329,6 +329,23 @@ main {
   opacity: 0.8;
   text-align: left;
 }
+.sound-btn .editing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.55em;
+  background: var(--warn, #f59e0b);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  margin-top: 2px;
+  font-weight: 600;
+}
+.sound-btn .editing-badge i {
+  font-size: 0.7em;
+}
 
 /* CARD LAYOUT */
 .ci-top {
@@ -1612,10 +1629,71 @@ var sbConfig = { url: 'https://nisiwytknqyrstjsfxah.supabase.co', key: 'sb_publi
 if (sbConfig.url && sbConfig.key) {
   try {
     sb = window.supabase.createClient(sbConfig.url, sbConfig.key, {
-      auth: { persistSession: true, autoRefreshToken: true }
+      auth: { persistSession: true, autoRefreshToken: true },
+      realtime: { channels: { broadcast: { ack: false } } }
     });
     sbConnected = true;
   } catch(e) { sbConnected = false; }
+}
+
+var editingStatus = {};
+var rtEditing = null;
+var rtDbChanges = null;
+
+function initRealtime() {
+  if (!sb || !sbConnected) return;
+  rtEditing = sb.channel('editing-status');
+  rtEditing.on('broadcast', { event: 'editing' }, function(payload) {
+    editingStatus[payload.sound_id] = payload.user;
+    filterSounds();
+  });
+  rtEditing.on('broadcast', { event: 'stopped_editing' }, function(payload) {
+    delete editingStatus[payload.sound_id];
+    filterSounds();
+  });
+  rtEditing.subscribe();
+
+  rtDbChanges = sb.channel('db-sound-names');
+  rtDbChanges.on('postgres_changes', { event: '*', schema: 'public', table: 'sound_names' }, function(payload) {
+    var row = payload.new;
+    if (payload.eventType === 'DELETE') {
+      var oldId = payload.old.sound_id;
+      delete customNames[oldId]; delete customNames[oldId + '_by'];
+      delete customImages[oldId]; delete customImages[oldId + '_by'];
+    } else if (row) {
+      var sid = row.sound_id;
+      if (row.name) {
+        customNames[sid] = row.name;
+        if (row.updated_by) customNames[sid + '_by'] = row.updated_by;
+      } else {
+        delete customNames[sid]; delete customNames[sid + '_by'];
+      }
+      if (row.image_url) {
+        customImages[sid] = row.image_url;
+        if (row.image_updated_by) customImages[sid + '_by'] = row.image_updated_by;
+      } else {
+        delete customImages[sid]; delete customImages[sid + '_by'];
+      }
+    }
+    try { localStorage.setItem('tibiaSoundNames', JSON.stringify(customNames)); } catch(e) {}
+    try { localStorage.setItem('tibiaSoundImages', JSON.stringify(customImages)); } catch(e) {}
+    filterSounds();
+  });
+  rtDbChanges.subscribe();
+}
+
+function getCurrentUserName() {
+  return currentUser ? (currentUser.user_metadata?.full_name || currentUser.email || 'Alguem') : 'Alguem';
+}
+
+function broadcastEditing(soundId) {
+  if (!rtEditing) return;
+  rtEditing.send({ type: 'broadcast', event: 'editing', payload: { sound_id: soundId, user: getCurrentUserName() } });
+}
+
+function broadcastStoppedEditing(soundId) {
+  if (!rtEditing) return;
+  rtEditing.send({ type: 'broadcast', event: 'stopped_editing', payload: { sound_id: soundId } });
 }
 
 function handleAuth() {
@@ -1647,6 +1725,7 @@ function updateAuthUI(user) {
 }
 
 if (sb) {
+  initRealtime();
   sb.auth.getSession().then(function(resp) {
     if (resp.data?.session?.user) updateAuthUI(resp.data.session.user);
     if (sbConnected) loadFromSupabase();
@@ -1821,6 +1900,7 @@ function openEditModal(soundId) {
     preview.innerHTML = '<i class="fas fa-plus" style="font-size:1.5em;color:var(--text-muted);opacity:0.5"></i><span style="font-size:0.55em;color:var(--text-muted);opacity:0.6;font-weight:600;text-align:center;line-height:1.2;padding:0 8px">ADD IMAGEM</span>';
     preview.style.border = '2px dashed var(--border)';
   }
+  broadcastEditing(soundId);
   openModal();
 }
 
@@ -1835,6 +1915,7 @@ function openModal() {
 
 function closeModal() {
   document.getElementById('mainModal').classList.remove('open');
+  if (window._modalSoundId) broadcastStoppedEditing(window._modalSoundId);
 }
 
 function saveModal() {
@@ -1974,6 +2055,7 @@ function filterSounds() {
     return;
   }
 
+  var currentUserName = getCurrentUserName();
   grid.innerHTML = filtered.map(function(s) {
     var label = getLabel(s);
     var h = getHash(s.file);
@@ -1989,6 +2071,11 @@ function filterSounds() {
     }
     imgHtml += '</div>';
     var imgEditorHtml = imgEditor ? '<span class="img-editor">por ' + imgEditor + '</span>' : '';
+    var editUser = editingStatus[s.id];
+    var editingHtml = '';
+    if (editUser && editUser !== currentUserName) {
+      editingHtml = '<span class="editing-badge"><i class="fas fa-pencil-alt"></i> ' + editUser + '</span>';
+    }
     return '<div class="sound-btn" onclick="playSound(sounds[' + (s.id - 1) + '], this)" title="Som #' + s.id + '\nHash: ' + h + '\nTamanho: ' + formatSize(s.size) + (label ? '\nNome: ' + label : '') + '">' +
       '<div class="card-body">' +
       '<div class="card-left">' +
@@ -2005,6 +2092,7 @@ function filterSounds() {
       '<span class="label ' + labelClass + '">' + displayLabel + '</span>' +
       '</div>' +
       editorHtml +
+      editingHtml +
       '<div class="ci-bottom">' +
       '<span class="size">' + formatSize(s.size) + '</span>' +
       '<button class="dl-btn" onclick="downloadSound(sounds[' + (s.id - 1) + '], event)" title="Download"><i class="fas fa-download"></i></button>' +
