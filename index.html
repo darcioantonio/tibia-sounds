@@ -582,12 +582,18 @@ footer a:hover { color: var(--accent-light); }
   border-color: var(--accent);
 }
 .modal-side .modal-actions .btn-primary {
-  background: var(--accent);
+  background: #059669;
   color: #fff;
-  border-color: var(--accent);
+  border-color: #059669;
 }
-.modal-side .modal-actions .btn-primary:hover {
+.modal-side .modal-actions .btn-primary:hover:not(:disabled) {
   opacity: 0.9;
+  background: #10b981;
+  border-color: #10b981;
+}
+.modal-side .modal-actions .btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 .modal-side .modal-actions .btn-link {
   color: var(--accent);
@@ -671,7 +677,7 @@ footer a:hover { color: var(--accent-light); }
         <p id="modalDesc">Instrucoes aqui</p>
         <input type="text" id="modalInput" placeholder="..." autocomplete="off">
         <div class="modal-actions" id="modalActions">
-          <button class="btn-primary" onclick="saveModal()"><i class="fas fa-check"></i> Salvar</button>
+          <button class="btn-primary" id="modalSaveBtn" onclick="saveModal()" disabled><i class="fas fa-check"></i> Salvar</button>
         </div>
       </div>
       <div class="modal-iframe" id="modalIframeWrap">
@@ -1707,7 +1713,7 @@ function setImage(soundId, event) {
   window._modalSoundId = soundId;
   window._modalMode = 'image';
   document.getElementById('modalTitle').textContent = 'Adicionar Imagem';
-  document.getElementById('modalDesc').innerHTML = 'Navegue pelo Tibia Wiki ao lado, clique com botao direito na imagem, copie o endereco e cole aqui:';
+  document.getElementById('modalDesc').innerHTML = 'Navegue pelo Tibia Wiki ao lado, clique com botao direito na imagem, copiar link da imagem, cole no campo a esquerda e depois salvar.';
   document.getElementById('modalInput').value = customImages[soundId] || '';
   document.getElementById('modalInput').placeholder = 'https://www.tibiawiki.com.br/images/...';
   var wrap = document.getElementById('modalIframeWrap');
@@ -1727,11 +1733,21 @@ function setImage(soundId, event) {
 
 function openModal() {
   document.getElementById('mainModal').classList.add('open');
-  document.getElementById('modalInput').focus();
+  var input = document.getElementById('modalInput');
+  input.focus();
+  input.addEventListener('input', toggleSaveBtn);
+  toggleSaveBtn();
+}
+
+function toggleSaveBtn() {
+  var btn = document.getElementById('modalSaveBtn');
+  var val = document.getElementById('modalInput').value.trim();
+  btn.disabled = window._modalMode === 'image' && val === '';
 }
 
 function closeModal() {
   document.getElementById('mainModal').classList.remove('open');
+  document.getElementById('modalInput').removeEventListener('input', toggleSaveBtn);
 }
 
 function saveModal() {
