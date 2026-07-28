@@ -769,14 +769,14 @@ footer .footer-links .fa-whatsapp { color: #25d366; }
           <div style="font-size:0.75em;color:var(--text-muted)">Escaneie o QR Code ao lado ou copie a chave</div>
         </div>
       </div>
-      <a href="https://paypal.me/darcio1989" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:16px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,156,222,0.2);border-radius:14px;padding:16px 20px;text-decoration:none;transition:all 0.3s;backdrop-filter:blur(8px)" onmouseover="this.style.borderColor='#009cde';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,156,222,0.15)'" onmouseout="this.style.borderColor='rgba(0,156,222,0.2)';this.style.transform='';this.style.boxShadow=''">
+      <div onclick="copyPaypal(event)" style="display:flex;align-items:center;gap:16px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,156,222,0.2);border-radius:14px;padding:16px 20px;cursor:pointer;transition:all 0.3s;backdrop-filter:blur(8px)" onmouseover="this.style.borderColor='#009cde';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,156,222,0.15)'" onmouseout="this.style.borderColor='rgba(0,156,222,0.2)';this.style.transform='';this.style.boxShadow=''">
         <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#009cde,#003087);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.5em;color:#fff;box-shadow:0 4px 12px rgba(0,156,222,0.3)"><i class="fab fa-paypal"></i></div>
         <div style="flex:1">
           <div style="font-weight:700;font-size:1em;color:#009cde">PayPal</div>
-          <div style="font-size:0.8em;color:var(--text-dim)">darcio1989@gmail.com</div>
+          <div style="font-size:0.8em;color:var(--text-dim)" id="paypalText">darcio1989@gmail.com <span style="color:var(--accent);font-weight:600">Copiar</span></div>
         </div>
         <i class="fas fa-chevron-right" style="color:#009cde;font-size:0.9em"></i>
-      </a>
+      </div>
       <a href="https://livepix.gg/darcio" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:16px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,107,107,0.2);border-radius:14px;padding:16px 20px;text-decoration:none;transition:all 0.3s;backdrop-filter:blur(8px)" onmouseover="this.style.borderColor='#ff6b6b';this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(255,107,107,0.15)'" onmouseout="this.style.borderColor='rgba(255,107,107,0.2)';this.style.transform='';this.style.boxShadow=''">
         <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.5em;color:#fff;box-shadow:0 4px 12px rgba(255,107,107,0.3)">&#9829;</div>
         <div style="flex:1">
@@ -1879,6 +1879,15 @@ function openPixFull() {
 }
 function closePixFull() {
   document.getElementById('pixFullModal').classList.remove('open');
+}
+
+function copyPaypal(e) {
+  navigator.clipboard.writeText('darcio1989@gmail.com').then(function() {
+    var el = document.getElementById('paypalText');
+    var orig = el.innerHTML;
+    el.innerHTML = 'Email copiado! Faça o pagamento para darcio1989@gmail.com';
+    setTimeout(function() { el.innerHTML = orig; }, 3000);
+  }).catch(function() {});
 }
 
 var heartsInterval = null;
