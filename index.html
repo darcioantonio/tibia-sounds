@@ -176,7 +176,7 @@ main {
   max-width: 1600px;
   margin: 0 auto;
   padding: 16px;
-  padding-bottom: 60px;
+  padding-bottom: 80px;
 }
 
 /* GRID */
@@ -417,9 +417,9 @@ main {
 /* FOOTER */
 footer {
   text-align: center;
-  padding: 10px 20px;
+  padding: 14px 20px;
   color: var(--text-muted);
-  font-size: 0.7em;
+  font-size: 0.8em;
   border-top: 1px solid var(--border);
   position: fixed;
   bottom: 0;
@@ -428,9 +428,38 @@ footer {
   background: var(--bg2);
   z-index: 99;
   transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 footer a { color: var(--accent); text-decoration: none; font-weight: 600; transition: color 0.2s; }
 footer a:hover { color: var(--accent-light); }
+footer .footer-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+footer .footer-links a {
+  font-size: 1.1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+footer .footer-links a:hover {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+footer .footer-links .fa-instagram { color: #e4405f; }
+footer .footer-links .fa-twitch { color: #9146ff; }
+footer .footer-links .fa-whatsapp { color: #25d366; }
 
 /* BACK TO TOP */
 .back-top {
@@ -662,7 +691,13 @@ footer a:hover { color: var(--accent-light); }
 <main>
   <div class="sound-grid" id="soundGrid"></div>
 </main>
-<footer>Criado por <a href="https://www.instagram.com/darcioantonio" target="_blank" rel="noopener">Darcio</a></footer>
+<footer>Criado por <a href="https://www.instagram.com/darcioantonio" target="_blank" rel="noopener">Darcio</a>
+  <span class="footer-links">
+    <a href="https://www.instagram.com/darcioantonio" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.twitch.tv/darcio_" target="_blank" rel="noopener" title="Twitch"><i class="fab fa-twitch"></i></a>
+    <a href="https://wa.me/5514988035885" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+  </span>
+</footer>
 <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Voltar ao topo"><i class="fas fa-chevron-up"></i></button>
 
 <!-- MODAL -->
